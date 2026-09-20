@@ -139,6 +139,39 @@
   .progress { height: 4px; background: var(--bar); border-radius: 2px; margin-top: 14px; overflow: hidden; }
   .progress > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--ok)); transition: width 0.1s; }
 
+
+  /* Selector de modo */
+  .modes {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+  }
+  .mode-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 9px 8px;
+    color: var(--dim);
+  }
+  .mode-btn .m-title { font-size: 0.9rem; }
+  .mode-btn .m-count { font-size: 0.68rem; opacity: 0.75; }
+  .mode-btn:not(.active):hover { color: var(--text); border-color: var(--border); }
+  .mode-btn:not(.active):focus { outline: none; }
+  .mode-btn.active { background: var(--bg); border-color: var(--accent); color: #fff; }
+  .mode-btn.active .m-title { color: var(--accent); }
+  .mode-btn[data-mode="css"].active .m-title { color: var(--ok); }
+  .mode-btn[data-mode="mixed"].active .m-title { color: var(--caret); }
+
   .controls { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
   button {
     font-family: var(--mono);
@@ -179,6 +212,7 @@
 
   @media (max-width: 600px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
+    .modes { flex-direction: column; }
     .result .grid { grid-template-columns: 1fr; }
   }
 </style>
@@ -190,6 +224,12 @@
     <h1>&lt;Code<span>Type</span> /&gt;</h1>
     <p>Practica mecanografía y memoriza HTML y CSS a la vez</p>
   </header>
+
+  <div class="modes" id="modes" role="tablist" aria-label="Modo de juego">
+    <button class="mode-btn active" data-mode="html" role="tab"><span class="m-title">Solo HTML</span><span class="m-count" id="cnt-html"></span></button>
+    <button class="mode-btn" data-mode="css" role="tab"><span class="m-title">Solo CSS</span><span class="m-count" id="cnt-css"></span></button>
+    <button class="mode-btn" data-mode="mixed" role="tab"><span class="m-title">HTML + CSS</span><span class="m-count" id="cnt-mixed"></span></button>
+  </div>
 
   <div class="stats">
     <div class="stat"><div class="label">Tiempo</div><div class="value" id="time">0.0s</div></div>
@@ -231,7 +271,7 @@
     <button class="primary" id="next">Siguiente aleatorio →<kbd>Ctrl+Enter</kbd></button>
   </div>
 
-  <p class="hint">Tab inserta 2 espacios · Enter salta de línea · La sangría cuenta como parte del código</p>
+  <p class="hint">Tab inserta 2 espacios · Enter salta de línea · Cambiar de modo carga un ejercicio nuevo</p>
 </div>
 
 <script>
@@ -315,6 +355,139 @@
 `<button id="btn" class="btn btn-primary" data-id="42" aria-label="Guardar" disabled>
   Guardar
 </button>` },
+
+
+    // ---------- HTML (principiante · nuevos) ----------
+    { lang: "HTML", file: "header-basico.html", code:
+`<header>
+  <h1>Mi primera web</h1>
+  <p>Aprendiendo HTML paso a paso</p>
+</header>` },
+
+    { lang: "HTML", file: "nav-enlaces.html", code:
+`<nav>
+  <a href="index.html">Inicio</a>
+  <a href="sobre-mi.html">Sobre mí</a>
+  <a href="contacto.html">Contacto</a>
+</nav>` },
+
+    { lang: "HTML", file: "main-section.html", code:
+`<main>
+  <section id="bienvenida">
+    <h2>Bienvenido</h2>
+    <p>Esta es la sección principal.</p>
+  </section>
+</main>` },
+
+    { lang: "HTML", file: "footer-basico.html", code:
+`<footer>
+  <p>&copy; 2026 Mi sitio web</p>
+  <a href="#inicio">Volver arriba</a>
+</footer>` },
+
+    { lang: "HTML", file: "titulos.html", code:
+`<h1>Título principal</h1>
+<h2>Subtítulo</h2>
+<h3>Apartado</h3>
+<p>Un párrafo con <strong>negrita</strong> y <em>cursiva</em>.</p>` },
+
+    { lang: "HTML", file: "lista-ordenada.html", code:
+`<ol>
+  <li>Abrir el editor</li>
+  <li>Escribir el código</li>
+  <li>Guardar el archivo</li>
+</ol>` },
+
+    { lang: "HTML", file: "lista-descripcion.html", code:
+`<dl>
+  <dt>HTML</dt>
+  <dd>Lenguaje de marcado</dd>
+  <dt>CSS</dt>
+  <dd>Lenguaje de estilos</dd>
+</dl>` },
+
+    { lang: "HTML", file: "enlace-externo.html", code:
+`<a href="https://www.wikipedia.org" target="_blank" rel="noopener">
+  Visitar Wikipedia
+</a>` },
+
+    { lang: "HTML", file: "enlace-correo.html", code:
+`<a href="mailto:hola@ejemplo.com">Escríbeme un correo</a>
+<a href="tel:+34600123456">Llámame</a>
+<a href="#contacto">Ir al contacto</a>` },
+
+    { lang: "HTML", file: "imagen-alt.html", code:
+`<img src="logo.png" alt="Logotipo de mi web" width="200" height="100">` },
+
+    { lang: "HTML", file: "id-class.html", code:
+`<div id="caja-principal" class="caja destacada">
+  <p class="texto">Elemento con id y class</p>
+</div>` },
+
+    { lang: "HTML", file: "input-texto.html", code:
+`<label for="nombre">Nombre:</label>
+<input type="text" id="nombre" name="nombre" placeholder="Tu nombre">` },
+
+    { lang: "HTML", file: "input-password.html", code:
+`<label for="clave">Contraseña:</label>
+<input type="password" id="clave" name="clave" minlength="8" required>` },
+
+    { lang: "HTML", file: "input-radio.html", code:
+`<input type="radio" id="si" name="respuesta" value="si">
+<label for="si">Sí</label>
+<input type="radio" id="no" name="respuesta" value="no">
+<label for="no">No</label>` },
+
+    { lang: "HTML", file: "select-basico.html", code:
+`<label for="pais">País:</label>
+<select id="pais" name="pais">
+  <option value="es">España</option>
+  <option value="mx">México</option>
+  <option value="ar">Argentina</option>
+</select>` },
+
+    { lang: "HTML", file: "textarea-boton.html", code:
+`<textarea name="mensaje" rows="5" cols="30" placeholder="Escribe aquí"></textarea>
+<button type="submit">Enviar</button>
+<button type="reset">Borrar</button>` },
+
+    { lang: "HTML", file: "formulario-completo.html", code:
+`<form action="/registro" method="post">
+  <input type="text" name="usuario" placeholder="Usuario">
+  <input type="email" name="correo" placeholder="Correo">
+  <input type="submit" value="Registrarse">
+</form>` },
+
+    { lang: "HTML", file: "tabla-basica.html", code:
+`<table border="1">
+  <tr>
+    <th>Producto</th>
+    <th>Precio</th>
+  </tr>
+  <tr>
+    <td>Libro</td>
+    <td>12 €</td>
+  </tr>
+</table>` },
+
+    { lang: "HTML", file: "tabla-celdas.html", code:
+`<table>
+  <tr>
+    <th colspan="2">Horario</th>
+  </tr>
+  <tr>
+    <td rowspan="2">Lunes</td>
+    <td>Mates</td>
+  </tr>
+</table>` },
+
+    { lang: "HTML", file: "pagina-completa.html", code:
+`<body>
+  <header><h1>Blog</h1></header>
+  <nav><a href="/">Inicio</a></nav>
+  <main><p>Hola mundo</p></main>
+  <footer><p>Fin</p></footer>
+</body>` },
 
     // ---------- CSS ----------
     { lang: "CSS", file: "reset.css", code:
@@ -425,7 +598,61 @@ p::first-line { text-transform: uppercase; }` },
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 1.5rem;
   margin: 0 auto;
-}` }
+}` },
+
+    // ---------- CSS (extra para equilibrar) ----------
+    { lang: "CSS", file: "colores.css", code:
+`h1 {
+  color: #ff5733;
+  background-color: rgb(30, 30, 30);
+  border-color: hsl(200, 60%, 50%);
+}` },
+
+    { lang: "CSS", file: "margenes.css", code:
+`.caja {
+  margin: 20px auto;
+  padding: 10px 15px;
+  border: 2px solid black;
+  width: 300px;
+}` },
+
+    { lang: "CSS", file: "fondo.css", code:
+`.hero {
+  background-image: url("fondo.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}` },
+
+    { lang: "CSS", file: "gradiente.css", code:
+`.banner {
+  background: linear-gradient(to right, #ff7e5f, #feb47b);
+  height: 200px;
+  border-radius: 10px;
+}` },
+
+    { lang: "CSS", file: "flex-columna.css", code:
+`.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}` },
+
+    { lang: "CSS", file: "enlaces.css", code:
+`a {
+  color: royalblue;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}` },
+
+    { lang: "CSS", file: "clases-id.css", code:
+`#cabecera { height: 80px; }
+.destacado { font-weight: bold; }
+p.aviso { color: crimson; }
+div, span { display: inline-block; }` },
   ];
 
   /* ============ REFERENCIAS DOM ============ */
@@ -436,7 +663,9 @@ p::first-line { text-transform: uppercase; }` },
 
   /* ============ ESTADO ============ */
   let current = null;
-  let currentIndex = -1;
+  let currentIndex = -1;          // índice dentro de EXERCISES (global)
+  let mode = "html";              // "html" | "css" | "mixed"
+  let lastLang = null;            // para alternar en el modo mixto
   let spans = [];
   let startTime = null;
   let timer = null;
@@ -445,12 +674,53 @@ p::first-line { text-transform: uppercase; }` },
   let errorKeystrokes = 0;   // pulsaciones que introdujeron un carácter incorrecto
   let completed = 0;
 
+  /* ============ MODOS DE JUEGO ============ */
+  const MODE_LABELS = { html: "HTML", css: "CSS", mixed: "HTML + CSS" };
+
+  // Índices globales de los ejercicios disponibles en un modo
+  function poolFor(m) {
+    const idx = [];
+    EXERCISES.forEach((ex, i) => {
+      if (m === "mixed" || ex.lang.toLowerCase() === m) idx.push(i);
+    });
+    return idx;
+  }
+
+  function updateModeCounts() {
+    $("cnt-html").textContent  = poolFor("html").length  + " ejercicios";
+    $("cnt-css").textContent   = poolFor("css").length   + " ejercicios";
+    $("cnt-mixed").textContent = poolFor("mixed").length + " ejercicios";
+  }
+
+  function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
   /* ============ CARGA DE EJERCICIO ============ */
   function pickRandom() {
-    if (EXERCISES.length === 1) return 0;
-    let i;
-    do { i = Math.floor(Math.random() * EXERCISES.length); } while (i === currentIndex);
-    return i;
+    let pool = poolFor(mode);
+
+    // Modo mixto: alternar lenguaje de forma aleatoria, pero evitando
+    // que salgan demasiadas veces seguidas del mismo (mezcla equilibrada)
+    if (mode === "mixed") {
+      const wantLang = lastLang === "HTML" ? "CSS" : lastLang === "CSS" ? "HTML" : (Math.random() < 0.5 ? "HTML" : "CSS");
+      // 70 % alterna, 30 % libre => "alterna o combina de forma aleatoria"
+      const useAlt = Math.random() < 0.7;
+      if (useAlt) pool = pool.filter(i => EXERCISES[i].lang === wantLang);
+    }
+
+    if (pool.length > 1) pool = pool.filter(i => i !== currentIndex);
+    return randomFrom(pool);
+  }
+
+  function setMode(newMode, load = true) {
+    mode = newMode;
+    lastLang = null;
+    document.querySelectorAll(".mode-btn").forEach(b => {
+      const on = b.dataset.mode === newMode;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    try { localStorage.setItem("codetype-mode", newMode); } catch (e) {}
+    if (load) { currentIndex = -1; loadExercise(pickRandom()); }
   }
 
   function loadExercise(index) {
@@ -464,7 +734,9 @@ p::first-line { text-transform: uppercase; }` },
 
     $("filename").textContent = current.file;
     $("lang").textContent = current.lang;
-    counterEl.textContent = (index + 1) + "/" + EXERCISES.length;
+    lastLang = current.lang;
+    const pool = poolFor(mode);
+    counterEl.textContent = (pool.indexOf(index) + 1) + "/" + pool.length;
 
     targetEl.innerHTML = "";
     spans = [];
@@ -615,8 +887,19 @@ p::first-line { text-transform: uppercase; }` },
   $("restart").addEventListener("click", () => loadExercise(currentIndex));
   $("next").addEventListener("click", () => loadExercise(pickRandom()));
 
+  document.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.mode !== mode) setMode(btn.dataset.mode);
+      inputEl.focus();
+    });
+  });
+
   /* ============ INICIO ============ */
-  loadExercise(Math.floor(Math.random() * EXERCISES.length));
+  updateModeCounts();
+  let savedMode = "html";
+  try { savedMode = localStorage.getItem("codetype-mode") || "html"; } catch (e) {}
+  if (!MODE_LABELS[savedMode]) savedMode = "html";
+  setMode(savedMode);
 </script>
 </body>
 </html>
