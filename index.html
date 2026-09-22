@@ -18,6 +18,9 @@
     --bad-bg: rgba(244, 71, 71, 0.28);
     --accent: #569cd6;
     --caret: #ffcc00;
+    --easy: #4ec9b0;
+    --medium: #ffcc00;
+    --hard: #f44747;
     --mono: "Fira Code", "Cascadia Code", Consolas, "Courier New", monospace;
   }
 
@@ -36,16 +39,70 @@
 
   .app { width: 100%; max-width: 860px; }
 
-  header { text-align: center; margin-bottom: 24px; }
+  header { text-align: center; margin-bottom: 20px; }
   header h1 { margin: 0 0 4px; font-family: var(--mono); font-size: 1.7rem; color: var(--accent); }
   header h1 span { color: var(--ok); }
   header p { margin: 0; color: var(--dim); font-size: 0.95rem; }
 
+  /* ---------- Selectores (modo y dificultad) ---------- */
+  .selector {
+    display: flex;
+    gap: 0;
+    margin-bottom: 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+  }
+  .sel-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 8px 8px;
+    color: var(--dim);
+    font-family: var(--mono);
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .sel-btn .s-title { font-size: 0.88rem; }
+  .sel-btn .s-count { font-size: 0.66rem; opacity: 0.75; }
+  .sel-btn:not(.active):hover { color: var(--text); border-color: var(--border); }
+  .sel-btn:not(.active):focus { outline: none; }
+  .sel-btn.active { background: var(--bg); color: #fff; }
+
+  .sel-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 4px 4px;
+  }
+
+  #modes .sel-btn.active { border-color: var(--accent); }
+  #modes .sel-btn[data-v="html"].active .s-title { color: var(--accent); }
+  #modes .sel-btn[data-v="css"].active .s-title { color: var(--ok); }
+  #modes .sel-btn[data-v="mixed"].active .s-title { color: var(--caret); }
+
+  #levels .sel-btn[data-v="easy"].active   { border-color: var(--easy); }
+  #levels .sel-btn[data-v="medium"].active { border-color: var(--medium); }
+  #levels .sel-btn[data-v="hard"].active   { border-color: var(--hard); }
+  #levels .sel-btn[data-v="easy"].active .s-title   { color: var(--easy); }
+  #levels .sel-btn[data-v="medium"].active .s-title { color: var(--medium); }
+  #levels .sel-btn[data-v="hard"].active .s-title   { color: var(--hard); }
+  #levels .sel-btn.locked { opacity: 0.4; cursor: not-allowed; }
+
+  /* ---------- Marcadores ---------- */
   .stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-    margin-bottom: 16px;
+    margin: 16px 0;
   }
   .stat {
     background: var(--panel);
@@ -57,6 +114,7 @@
   .stat .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); }
   .stat .value { font-family: var(--mono); font-size: 1.4rem; color: var(--text); margin-top: 2px; }
 
+  /* ---------- Editor ---------- */
   .editor {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -77,13 +135,13 @@
   .dot { width: 11px; height: 11px; border-radius: 50%; }
   .dot.r { background: #ff5f56; } .dot.y { background: #ffbd2e; } .dot.g { background: #27c93f; }
   .titlebar .tab { margin-left: 10px; color: var(--text); }
-  .titlebar .lang {
-    margin-left: auto;
-    background: var(--bg);
-    padding: 2px 8px;
-    border-radius: 4px;
-    color: var(--accent);
-  }
+  .titlebar .badges { margin-left: auto; display: flex; gap: 6px; }
+  .badge { background: var(--bg); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+  .badge.lang { color: var(--accent); }
+  .badge.lvl-easy { color: var(--easy); }
+  .badge.lvl-medium { color: var(--medium); }
+  .badge.lvl-hard { color: var(--hard); }
+  .badge.review { color: #c586c0; }
 
   .body { padding: 18px 20px; }
   .section-label {
@@ -95,7 +153,18 @@
     letter-spacing: 0.08em;
   }
 
-  /* Bloque objetivo */
+  .info {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #9cdcfe;
+    background: rgba(86, 156, 214, 0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+  }
+  .info b { color: var(--accent); font-weight: 600; }
+
   .target {
     font-family: var(--mono);
     font-size: 1.05rem;
@@ -108,7 +177,7 @@
     padding: 14px 16px;
     margin-bottom: 18px;
     user-select: none;
-    min-height: 90px;
+    min-height: 70px;
   }
   .target span { color: var(--dim); border-radius: 2px; }
   .target span.ok { color: var(--ok); background: var(--ok-bg); }
@@ -116,7 +185,6 @@
   .target span.cur { background: rgba(255, 204, 0, 0.25); box-shadow: inset 0 -2px 0 var(--caret); animation: blink 1s steps(1) infinite; }
   @keyframes blink { 50% { box-shadow: inset 0 -2px 0 transparent; } }
 
-  /* Área de escritura */
   textarea {
     width: 100%;
     min-height: 120px;
@@ -139,41 +207,19 @@
   .progress { height: 4px; background: var(--bar); border-radius: 2px; margin-top: 14px; overflow: hidden; }
   .progress > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--ok)); transition: width 0.1s; }
 
-
-  /* Selector de modo */
-  .modes {
-    display: flex;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 16px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 4px;
+  .toast {
+    min-height: 20px;
+    margin-top: 10px;
+    font-size: 0.82rem;
+    color: var(--caret);
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.2s;
   }
-  .mode-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 7px;
-    padding: 9px 8px;
-    color: var(--dim);
-  }
-  .mode-btn .m-title { font-size: 0.9rem; }
-  .mode-btn .m-count { font-size: 0.68rem; opacity: 0.75; }
-  .mode-btn:not(.active):hover { color: var(--text); border-color: var(--border); }
-  .mode-btn:not(.active):focus { outline: none; }
-  .mode-btn.active { background: var(--bg); border-color: var(--accent); color: #fff; }
-  .mode-btn.active .m-title { color: var(--accent); }
-  .mode-btn[data-mode="css"].active .m-title { color: var(--ok); }
-  .mode-btn[data-mode="mixed"].active .m-title { color: var(--caret); }
+  .toast.show { opacity: 1; }
 
   .controls { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
-  button {
+  button.ctl {
     font-family: var(--mono);
     font-size: 0.9rem;
     color: var(--text);
@@ -184,13 +230,17 @@
     cursor: pointer;
     transition: 0.15s;
   }
-  button:hover { border-color: var(--accent); color: #fff; }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #0d1117; font-weight: 700; }
-  button.primary:hover { filter: brightness(1.12); color: #0d1117; }
-  button.primary kbd { background: rgba(0,0,0,0.25); border-color: rgba(0,0,0,0.35); color: #0d1117; opacity: 1; }
+  button.ctl:hover { border-color: var(--accent); color: #fff; }
+  button.ctl.primary { background: var(--accent); border-color: var(--accent); color: #0d1117; font-weight: 700; }
+  button.ctl.primary:hover { filter: brightness(1.12); color: #0d1117; }
+  button.ctl.review { border-color: #c586c0; color: #c586c0; }
+  button.ctl.review:hover { background: rgba(197, 134, 192, 0.12); color: #e0a9dc; }
+  button.ctl.review.on { background: #c586c0; color: #1e1e1e; font-weight: 700; }
+  button.ctl:disabled { opacity: 0.4; cursor: not-allowed; }
   kbd { font-family: var(--mono); font-size: 0.72rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; margin-left: 6px; opacity: 0.8; }
+  button.ctl.primary kbd { background: rgba(0,0,0,0.25); border-color: rgba(0,0,0,0.35); color: #0d1117; opacity: 1; }
 
-  /* Resultados */
+  /* ---------- Resultados ---------- */
   .result {
     display: none;
     margin-top: 18px;
@@ -207,12 +257,13 @@
   .result .big { font-family: var(--mono); font-size: 1.9rem; color: #fff; }
   .result .small { font-size: 0.72rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; }
   .result .best { margin-top: 12px; font-size: 0.85rem; color: var(--dim); }
+  .result .fails { margin-top: 8px; font-size: 0.85rem; color: #c586c0; }
 
   .hint { text-align: center; margin-top: 18px; font-size: 0.8rem; color: var(--dim); }
 
   @media (max-width: 600px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
-    .modes { flex-direction: column; }
+    .selector { flex-direction: column; }
     .result .grid { grid-template-columns: 1fr; }
   }
 </style>
@@ -225,10 +276,18 @@
     <p>Practica mecanografía y memoriza HTML y CSS a la vez</p>
   </header>
 
-  <div class="modes" id="modes" role="tablist" aria-label="Modo de juego">
-    <button class="mode-btn active" data-mode="html" role="tab"><span class="m-title">Solo HTML</span><span class="m-count" id="cnt-html"></span></button>
-    <button class="mode-btn" data-mode="css" role="tab"><span class="m-title">Solo CSS</span><span class="m-count" id="cnt-css"></span></button>
-    <button class="mode-btn" data-mode="mixed" role="tab"><span class="m-title">HTML + CSS</span><span class="m-count" id="cnt-mixed"></span></button>
+  <div class="sel-label">Lenguaje</div>
+  <div class="selector" id="modes" role="tablist" aria-label="Modo de juego">
+    <button class="sel-btn active" data-v="html" role="tab"><span class="s-title">Solo HTML</span><span class="s-count"></span></button>
+    <button class="sel-btn" data-v="css" role="tab"><span class="s-title">Solo CSS</span><span class="s-count"></span></button>
+    <button class="sel-btn" data-v="mixed" role="tab"><span class="s-title">HTML + CSS</span><span class="s-count"></span></button>
+  </div>
+
+  <div class="sel-label">Dificultad</div>
+  <div class="selector" id="levels" role="tablist" aria-label="Dificultad">
+    <button class="sel-btn active" data-v="easy" role="tab"><span class="s-title">Fácil</span><span class="s-count"></span></button>
+    <button class="sel-btn" data-v="medium" role="tab"><span class="s-title">Intermedio</span><span class="s-count"></span></button>
+    <button class="sel-btn locked" data-v="hard" role="tab" disabled title="Disponible en la próxima versión"><span class="s-title">Alto</span><span class="s-count">próximamente</span></button>
   </div>
 
   <div class="stats">
@@ -242,9 +301,15 @@
     <div class="titlebar">
       <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
       <span class="tab" id="filename">ejercicio.html</span>
-      <span class="lang" id="lang">HTML</span>
+      <span class="badges">
+        <span class="badge review" id="badge-review" style="display:none">↻ repaso</span>
+        <span class="badge" id="badge-level"></span>
+        <span class="badge lang" id="lang">HTML</span>
+      </span>
     </div>
     <div class="body">
+      <div class="info" id="info"></div>
+
       <div class="section-label">// Código objetivo</div>
       <div class="target" id="target"></div>
 
@@ -253,6 +318,7 @@
         placeholder="Empieza a escribir aquí para iniciar el cronómetro..."></textarea>
 
       <div class="progress"><div id="bar"></div></div>
+      <div class="toast" id="toast"></div>
     </div>
   </div>
 
@@ -264,465 +330,959 @@
       <div><div class="big" id="r-time">0s</div><div class="small">Tiempo</div></div>
     </div>
     <div class="best" id="best"></div>
+    <div class="fails" id="fails"></div>
   </div>
 
   <div class="controls">
-    <button id="restart">↻ Reiniciar<kbd>Esc</kbd></button>
-    <button class="primary" id="next">Siguiente aleatorio →<kbd>Ctrl+Enter</kbd></button>
+    <button class="ctl" id="restart">↻ Reiniciar<kbd>Esc</kbd></button>
+    <button class="ctl review" id="review">Repasar fallos<span id="review-count"></span></button>
+    <button class="ctl primary" id="next">Siguiente aleatorio →<kbd>Ctrl+Enter</kbd></button>
   </div>
 
-  <p class="hint">Tab inserta 2 espacios · Enter salta de línea · Cambiar de modo carga un ejercicio nuevo</p>
+  <p class="hint">Tab inserta 2 espacios · Enter salta de línea · Cambiar modo o dificultad carga un ejercicio nuevo</p>
 </div>
 
 <script>
-  /* ============ BANCO DE EJERCICIOS ============ */
-  const EXERCISES = [
-    // ---------- HTML ----------
-    { lang: "HTML", file: "estructura.html", code:
-`<!DOCTYPE html>
+/* ============ NIVEL FÁCIL: esqueleto y piezas sueltas ============ */
+const EASY = [
+
+  /* ---------- HTML (30) ---------- */
+  { lang: "HTML", level: "easy", file: "doctype.html",
+    info: "Le dice al navegador que la página usa HTML5. Va siempre en la primera línea.",
+    code: `<!DOCTYPE html>` },
+
+  { lang: "HTML", level: "easy", file: "html-lang.html",
+    info: "Etiqueta raíz. lang=\"es\" indica el idioma, útil para lectores de pantalla y buscadores.",
+    code: `<html lang="es">
+</html>` },
+
+  { lang: "HTML", level: "easy", file: "meta-charset.html",
+    info: "Codificación de caracteres. Sin ella, las tildes y la ñ pueden verse mal.",
+    code: `<meta charset="UTF-8">` },
+
+  { lang: "HTML", level: "easy", file: "meta-viewport.html",
+    info: "Hace que la web se adapte al ancho del móvil en vez de verse diminuta.",
+    code: `<meta name="viewport" content="width=device-width, initial-scale=1.0">` },
+
+  { lang: "HTML", level: "easy", file: "title.html",
+    info: "El título que aparece en la pestaña del navegador y en Google.",
+    code: `<title>Mi primera página</title>` },
+
+  { lang: "HTML", level: "easy", file: "link-css.html",
+    info: "Conecta tu archivo de estilos CSS con la página. Va dentro del <head>.",
+    code: `<link rel="stylesheet" href="style.css">` },
+
+  { lang: "HTML", level: "easy", file: "script-js.html",
+    info: "Carga tu JavaScript. defer espera a que el HTML esté listo antes de ejecutarlo.",
+    code: `<script src="app.js" defer><\/script>` },
+
+  { lang: "HTML", level: "easy", file: "meta-description.html",
+    info: "Descripción que Google muestra bajo el título en los resultados de búsqueda.",
+    code: `<meta name="description" content="Página de ejemplo para aprender HTML">` },
+
+  { lang: "HTML", level: "easy", file: "favicon.html",
+    info: "El iconito que aparece en la pestaña junto al título.",
+    code: `<link rel="icon" href="favicon.ico">` },
+
+  { lang: "HTML", level: "easy", file: "head-completo.html",
+    info: "El <head> guarda la configuración de la página. No se muestra en pantalla.",
+    code: `<head>
+  <meta charset="UTF-8">
+  <title>Mi web</title>
+</head>` },
+
+  { lang: "HTML", level: "easy", file: "body-vacio.html",
+    info: "Todo lo que va dentro del <body> es lo que el usuario ve en la página.",
+    code: `<body>
+  <h1>Hola</h1>
+</body>` },
+
+  { lang: "HTML", level: "easy", file: "esqueleto-minimo.html",
+    info: "La estructura mínima de cualquier página HTML5. La escribirás miles de veces.",
+    code: `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mi web</title>
+  <title>Página</title>
 </head>
 <body>
 </body>
 </html>` },
 
-    { lang: "HTML", file: "meta-viewport.html", code:
-`<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="styles.css">
-<script src="app.js" defer><\/script>` },
+  { lang: "HTML", level: "easy", file: "head-viewport.html",
+    info: "Las dos metaetiquetas que casi toda web lleva al inicio del <head>.",
+    code: `<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">` },
 
-    { lang: "HTML", file: "semantica.html", code:
-`<header>
-  <nav>
-    <a href="#inicio">Inicio</a>
-  </nav>
-</header>
-<main>
-  <section>
-    <article></article>
-  </section>
-</main>
-<footer></footer>` },
 
-    { lang: "HTML", file: "lista.html", code:
-`<ul class="menu">
-  <li><a href="/">Home</a></li>
-  <li><a href="/blog">Blog</a></li>
-  <li><a href="/contacto">Contacto</a></li>
+  { lang: "HTML", level: "easy", file: "h1.html",
+    info: "El título principal. Solo debería haber uno por página.",
+    code: `<h1>Bienvenido a mi web</h1>` },
+
+  { lang: "HTML", level: "easy", file: "h2-h3.html",
+    info: "Los títulos van bajando de importancia: h1 > h2 > h3.",
+    code: `<h2>Sobre mí</h2>
+<h3>Mis estudios</h3>` },
+
+  { lang: "HTML", level: "easy", file: "parrafo.html",
+    info: "La etiqueta <p> es para cualquier párrafo de texto.",
+    code: `<p>Este es un párrafo de texto.</p>` },
+
+  { lang: "HTML", level: "easy", file: "negrita-cursiva.html",
+    info: "strong da importancia (negrita) y em da énfasis (cursiva).",
+    code: `<p>Texto <strong>importante</strong> y <em>enfatizado</em>.</p>` },
+
+  { lang: "HTML", level: "easy", file: "salto-linea.html",
+    info: "<br> es un salto de línea. No lleva etiqueta de cierre.",
+    code: `<p>Primera línea<br>Segunda línea</p>` },
+
+  { lang: "HTML", level: "easy", file: "linea-horizontal.html",
+    info: "<hr> dibuja una línea horizontal para separar secciones.",
+    code: `<hr>` },
+
+  { lang: "HTML", level: "easy", file: "enlace-simple.html",
+    info: "El enlace básico: href es el destino y el texto es lo que se pulsa.",
+    code: `<a href="https://www.google.com">Ir a Google</a>` },
+
+  { lang: "HTML", level: "easy", file: "enlace-interno.html",
+    info: "Enlace a otra página de tu propia web, usando una ruta relativa.",
+    code: `<a href="contacto.html">Contacto</a>` },
+
+  { lang: "HTML", level: "easy", file: "imagen-simple.html",
+    info: "src es la ruta de la imagen y alt es el texto si no carga (accesibilidad).",
+    code: `<img src="foto.jpg" alt="Foto de perfil">` },
+
+  { lang: "HTML", level: "easy", file: "lista-desordenada.html",
+    info: "ul es una lista con viñetas y cada elemento va en un li.",
+    code: `<ul>
+  <li>HTML</li>
+  <li>CSS</li>
 </ul>` },
 
-    { lang: "HTML", file: "formulario.html", code:
-`<form action="/enviar" method="post">
-  <label for="email">Correo</label>
-  <input type="email" id="email" name="email" required>
-  <button type="submit">Enviar</button>
-</form>` },
-
-    { lang: "HTML", file: "imagen.html", code:
-`<figure>
-  <img src="foto.jpg" alt="Paisaje de montaña" width="600" loading="lazy">
-  <figcaption>Sierra Mágina</figcaption>
-</figure>` },
-
-    { lang: "HTML", file: "tabla.html", code:
-`<table>
-  <thead>
-    <tr><th>Nombre</th><th>Edad</th></tr>
-  </thead>
-  <tbody>
-    <tr><td>Ana</td><td>17</td></tr>
-  </tbody>
-</table>` },
-
-    { lang: "HTML", file: "formulario-avanzado.html", code:
-`<select name="curso" id="curso">
-  <option value="smr">SMR</option>
-  <option value="dam">DAM</option>
-</select>
-<textarea name="msg" rows="4" placeholder="Mensaje"></textarea>
-<input type="checkbox" name="acepto" checked>` },
-
-    { lang: "HTML", file: "multimedia.html", code:
-`<video controls width="480" poster="portada.png">
-  <source src="video.mp4" type="video/mp4">
-</video>
-<audio src="musica.mp3" controls></audio>` },
-
-    { lang: "HTML", file: "atributos-data.html", code:
-`<button id="btn" class="btn btn-primary" data-id="42" aria-label="Guardar" disabled>
-  Guardar
-</button>` },
-
-
-    // ---------- HTML (principiante · nuevos) ----------
-    { lang: "HTML", file: "header-basico.html", code:
-`<header>
-  <h1>Mi primera web</h1>
-  <p>Aprendiendo HTML paso a paso</p>
-</header>` },
-
-    { lang: "HTML", file: "nav-enlaces.html", code:
-`<nav>
-  <a href="index.html">Inicio</a>
-  <a href="sobre-mi.html">Sobre mí</a>
-  <a href="contacto.html">Contacto</a>
-</nav>` },
-
-    { lang: "HTML", file: "main-section.html", code:
-`<main>
-  <section id="bienvenida">
-    <h2>Bienvenido</h2>
-    <p>Esta es la sección principal.</p>
-  </section>
-</main>` },
-
-    { lang: "HTML", file: "footer-basico.html", code:
-`<footer>
-  <p>&copy; 2026 Mi sitio web</p>
-  <a href="#inicio">Volver arriba</a>
-</footer>` },
-
-    { lang: "HTML", file: "titulos.html", code:
-`<h1>Título principal</h1>
-<h2>Subtítulo</h2>
-<h3>Apartado</h3>
-<p>Un párrafo con <strong>negrita</strong> y <em>cursiva</em>.</p>` },
-
-    { lang: "HTML", file: "lista-ordenada.html", code:
-`<ol>
-  <li>Abrir el editor</li>
-  <li>Escribir el código</li>
-  <li>Guardar el archivo</li>
+  { lang: "HTML", level: "easy", file: "lista-ordenada.html",
+    info: "ol es una lista numerada. Sirve para pasos que tienen un orden.",
+    code: `<ol>
+  <li>Abrir</li>
+  <li>Editar</li>
 </ol>` },
 
-    { lang: "HTML", file: "lista-descripcion.html", code:
-`<dl>
-  <dt>HTML</dt>
-  <dd>Lenguaje de marcado</dd>
-  <dt>CSS</dt>
-  <dd>Lenguaje de estilos</dd>
-</dl>` },
+  { lang: "HTML", level: "easy", file: "div-clase.html",
+    info: "div es una caja genérica. class le da un nombre para aplicarle estilos.",
+    code: `<div class="caja">Contenido</div>` },
 
-    { lang: "HTML", file: "enlace-externo.html", code:
-`<a href="https://www.wikipedia.org" target="_blank" rel="noopener">
-  Visitar Wikipedia
-</a>` },
+  { lang: "HTML", level: "easy", file: "span-id.html",
+    info: "span es una caja en línea. id identifica un elemento único de la página.",
+    code: `<span id="aviso">Atención</span>` },
 
-    { lang: "HTML", file: "enlace-correo.html", code:
-`<a href="mailto:hola@ejemplo.com">Escríbeme un correo</a>
-<a href="tel:+34600123456">Llámame</a>
-<a href="#contacto">Ir al contacto</a>` },
+  { lang: "HTML", level: "easy", file: "header-nav.html",
+    info: "header agrupa la cabecera y nav agrupa los enlaces de navegación.",
+    code: `<header>
+  <nav></nav>
+</header>` },
 
-    { lang: "HTML", file: "imagen-alt.html", code:
-`<img src="logo.png" alt="Logotipo de mi web" width="200" height="100">` },
+  { lang: "HTML", level: "easy", file: "main-footer.html",
+    info: "main es el contenido principal y footer es el pie de página.",
+    code: `<main>
+</main>
+<footer>
+</footer>` },
 
-    { lang: "HTML", file: "id-class.html", code:
-`<div id="caja-principal" class="caja destacada">
-  <p class="texto">Elemento con id y class</p>
-</div>` },
+  { lang: "HTML", level: "easy", file: "comentario.html",
+    info: "Los comentarios no se muestran en la página. Sirven para dejar notas.",
+    code: `<!-- Esto es un comentario -->` },
 
-    { lang: "HTML", file: "input-texto.html", code:
-`<label for="nombre">Nombre:</label>
-<input type="text" id="nombre" name="nombre" placeholder="Tu nombre">` },
+  { lang: "HTML", level: "easy", file: "boton-simple.html",
+    info: "Un botón básico. type=\"button\" evita que envíe un formulario sin querer.",
+    code: `<button type="button">Pulsar</button>` },
 
-    { lang: "HTML", file: "input-password.html", code:
-`<label for="clave">Contraseña:</label>
-<input type="password" id="clave" name="clave" minlength="8" required>` },
-
-    { lang: "HTML", file: "input-radio.html", code:
-`<input type="radio" id="si" name="respuesta" value="si">
-<label for="si">Sí</label>
-<input type="radio" id="no" name="respuesta" value="no">
-<label for="no">No</label>` },
-
-    { lang: "HTML", file: "select-basico.html", code:
-`<label for="pais">País:</label>
-<select id="pais" name="pais">
-  <option value="es">España</option>
-  <option value="mx">México</option>
-  <option value="ar">Argentina</option>
-</select>` },
-
-    { lang: "HTML", file: "textarea-boton.html", code:
-`<textarea name="mensaje" rows="5" cols="30" placeholder="Escribe aquí"></textarea>
-<button type="submit">Enviar</button>
-<button type="reset">Borrar</button>` },
-
-    { lang: "HTML", file: "formulario-completo.html", code:
-`<form action="/registro" method="post">
-  <input type="text" name="usuario" placeholder="Usuario">
-  <input type="email" name="correo" placeholder="Correo">
-  <input type="submit" value="Registrarse">
-</form>` },
-
-    { lang: "HTML", file: "tabla-basica.html", code:
-`<table border="1">
-  <tr>
-    <th>Producto</th>
-    <th>Precio</th>
-  </tr>
-  <tr>
-    <td>Libro</td>
-    <td>12 €</td>
-  </tr>
-</table>` },
-
-    { lang: "HTML", file: "tabla-celdas.html", code:
-`<table>
-  <tr>
-    <th colspan="2">Horario</th>
-  </tr>
-  <tr>
-    <td rowspan="2">Lunes</td>
-    <td>Mates</td>
-  </tr>
-</table>` },
-
-    { lang: "HTML", file: "pagina-completa.html", code:
-`<body>
-  <header><h1>Blog</h1></header>
-  <nav><a href="/">Inicio</a></nav>
-  <main><p>Hola mundo</p></main>
-  <footer><p>Fin</p></footer>
-</body>` },
-
-    // ---------- CSS ----------
-    { lang: "CSS", file: "reset.css", code:
-`* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  /* ---------- CSS (25) ---------- */
+  { lang: "CSS", level: "easy", file: "color-texto.css",
+    info: "color cambia el color del texto. Acepta nombres, hexadecimales y rgb().",
+    code: `p {
+  color: blue;
 }` },
 
-    { lang: "CSS", file: "variables.css", code:
-`:root {
-  --primary: #3498db;
-  --radius: 8px;
-}
-.card {
-  background: var(--primary);
-  border-radius: var(--radius);
+  { lang: "CSS", level: "easy", file: "fondo.css",
+    info: "background-color pinta el fondo de un elemento.",
+    code: `body {
+  background-color: #f4f4f4;
 }` },
 
-    { lang: "CSS", file: "flexbox.css", code:
-`.container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
+  { lang: "CSS", level: "easy", file: "fuente.css",
+    info: "font-family elige la tipografía. Lo último es la familia de respaldo.",
+    code: `body {
+  font-family: Arial, sans-serif;
 }` },
 
-    { lang: "CSS", file: "centrar.css", code:
-`.center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  { lang: "CSS", level: "easy", file: "tamano-fuente.css",
+    info: "font-size define el tamaño del texto. px son píxeles.",
+    code: `h1 {
+  font-size: 32px;
 }` },
 
-    { lang: "CSS", file: "grid.css", code:
-`.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: auto;
-  gap: 20px;
+  { lang: "CSS", level: "easy", file: "negrita-css.css",
+    info: "font-weight controla el grosor de la letra: normal, bold o 100 a 900.",
+    code: `.destacado {
+  font-weight: bold;
 }` },
 
-    { lang: "CSS", file: "grid-responsive.css", code:
-`.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}` },
-
-    { lang: "CSS", file: "selectores.css", code:
-`a:hover { color: tomato; }
-ul > li:first-child { font-weight: bold; }
-input[type="text"]:focus { outline: 2px solid blue; }
-p::first-line { text-transform: uppercase; }` },
-
-    { lang: "CSS", file: "media-query.css", code:
-`@media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
-  .content {
-    width: 100%;
-  }
-}` },
-
-    { lang: "CSS", file: "transiciones.css", code:
-`.btn {
-  background: #222;
-  transition: transform 0.3s ease, background 0.3s ease;
-}
-.btn:hover {
-  transform: scale(1.05);
-}` },
-
-    { lang: "CSS", file: "animacion.css", code:
-`@keyframes fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-.box {
-  animation: fade 1s ease-in-out infinite alternate;
-}` },
-
-    { lang: "CSS", file: "posicion.css", code:
-`.badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-}
-.parent { position: relative; }` },
-
-    { lang: "CSS", file: "tipografia.css", code:
-`body {
-  font-family: "Segoe UI", sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #333;
+  { lang: "CSS", level: "easy", file: "alinear-texto.css",
+    info: "text-align alinea el texto: left, center, right o justify.",
+    code: `h1 {
   text-align: center;
 }` },
 
-    { lang: "CSS", file: "sombras.css", code:
-`.card {
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 1.5rem;
-  margin: 0 auto;
+  { lang: "CSS", level: "easy", file: "margin.css",
+    info: "margin es el espacio EXTERIOR entre un elemento y los demás.",
+    code: `.caja {
+  margin: 20px;
 }` },
 
-    // ---------- CSS (extra para equilibrar) ----------
-    { lang: "CSS", file: "colores.css", code:
-`h1 {
-  color: #ff5733;
-  background-color: rgb(30, 30, 30);
-  border-color: hsl(200, 60%, 50%);
+  { lang: "CSS", level: "easy", file: "padding.css",
+    info: "padding es el espacio INTERIOR entre el borde y el contenido.",
+    code: `.caja {
+  padding: 15px;
 }` },
 
-    { lang: "CSS", file: "margenes.css", code:
-`.caja {
-  margin: 20px auto;
-  padding: 10px 15px;
-  border: 2px solid black;
-  width: 300px;
+  { lang: "CSS", level: "easy", file: "borde.css",
+    info: "border se escribe: grosor, estilo y color.",
+    code: `.caja {
+  border: 1px solid black;
 }` },
 
-    { lang: "CSS", file: "fondo.css", code:
-`.hero {
-  background-image: url("fondo.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  { lang: "CSS", level: "easy", file: "ancho-alto.css",
+    info: "width y height fijan el tamaño de un elemento.",
+    code: `.caja {
+  width: 200px;
+  height: 100px;
 }` },
 
-    { lang: "CSS", file: "gradiente.css", code:
-`.banner {
-  background: linear-gradient(to right, #ff7e5f, #feb47b);
-  height: 200px;
+  { lang: "CSS", level: "easy", file: "ancho-max.css",
+    info: "max-width evita que un elemento pase de cierto ancho pero deja que se encoja.",
+    code: `.contenedor {
+  max-width: 800px;
+}` },
+
+  { lang: "CSS", level: "easy", file: "reset-margen.css",
+    info: "El * selecciona todo. Es el reset clásico para partir de cero.",
+    code: `* {
+  margin: 0;
+  padding: 0;
+}` },
+
+  { lang: "CSS", level: "easy", file: "box-sizing.css",
+    info: "border-box hace que el padding y el borde cuenten dentro del ancho total.",
+    code: `* {
+  box-sizing: border-box;
+}` },
+
+  { lang: "CSS", level: "easy", file: "selector-clase.css",
+    info: "El punto (.) selecciona por clase. Sirve para muchos elementos.",
+    code: `.titulo {
+  color: crimson;
+}` },
+
+  { lang: "CSS", level: "easy", file: "selector-id.css",
+    info: "La almohadilla (#) selecciona por id. Solo para un elemento único.",
+    code: `#cabecera {
+  background: black;
+}` },
+
+  { lang: "CSS", level: "easy", file: "selector-multiple.css",
+    info: "La coma aplica los mismos estilos a varios selectores a la vez.",
+    code: `h1, h2, h3 {
+  color: navy;
+}` },
+
+  { lang: "CSS", level: "easy", file: "enlace-css.css",
+    info: "text-decoration: none quita el subrayado de los enlaces.",
+    code: `a {
+  color: teal;
+  text-decoration: none;
+}` },
+
+  { lang: "CSS", level: "easy", file: "hover-simple.css",
+    info: ":hover se activa cuando el ratón pasa por encima del elemento.",
+    code: `a:hover {
+  color: orange;
+}` },
+
+  { lang: "CSS", level: "easy", file: "radio-borde.css",
+    info: "border-radius redondea las esquinas. 50% hace un círculo.",
+    code: `.tarjeta {
   border-radius: 10px;
 }` },
 
-    { lang: "CSS", file: "flex-columna.css", code:
-`.menu {
+  { lang: "CSS", level: "easy", file: "lista-sin-puntos.css",
+    info: "list-style: none quita las viñetas de una lista.",
+    code: `ul {
+  list-style: none;
+}` },
+
+  { lang: "CSS", level: "easy", file: "cursor.css",
+    info: "cursor: pointer muestra la manita al pasar por encima, típico en botones.",
+    code: `button {
+  cursor: pointer;
+}` },
+
+  { lang: "CSS", level: "easy", file: "centrar-bloque.css",
+    info: "margin con auto a los lados centra un bloque que tenga ancho definido.",
+    code: `.contenedor {
+  width: 600px;
+  margin: 0 auto;
+}` },
+
+  { lang: "CSS", level: "easy", file: "imagen-responsive.css",
+    info: "Hace que las imágenes nunca se salgan de su contenedor.",
+    code: `img {
+  max-width: 100%;
+  height: auto;
+}` },
+
+  { lang: "CSS", level: "easy", file: "interlineado.css",
+    info: "line-height es el espacio entre líneas. 1.6 es cómodo para leer.",
+    code: `p {
+  line-height: 1.6;
+}` },
+
+  { lang: "CSS", level: "easy", file: "colores-rgb.css",
+    info: "Otras formas de escribir un color: rgb() y hexadecimal.",
+    code: `.a { color: rgb(255, 87, 51); }
+.b { color: #ff5733; }` }
+];
+
+/* ============ NIVEL INTERMEDIO: componentes de webs reales ============ */
+const MEDIUM = [
+
+  /* ---------- HTML (30) ---------- */
+  { lang: "HTML", level: "medium", file: "navbar.html",
+    info: "La barra de navegación clásica: una lista de enlaces dentro de <nav>.",
+    code: `<nav class="navbar">
+  <ul>
+    <li><a href="/">Inicio</a></li>
+    <li><a href="/tienda">Tienda</a></li>
+    <li><a href="/contacto">Contacto</a></li>
+  </ul>
+</nav>` },
+
+  { lang: "HTML", level: "medium", file: "navbar-logo.html",
+    info: "Navbar con logo a la izquierda y enlaces a la derecha.",
+    code: `<header class="cabecera">
+  <a href="/" class="logo">MiMarca</a>
+  <nav>
+    <a href="/blog">Blog</a>
+    <a href="/precios">Precios</a>
+  </nav>
+</header>` },
+
+  { lang: "HTML", level: "medium", file: "hero.html",
+    info: "La sección 'hero': lo primero que ves al entrar en una web, con título y botón.",
+    code: `<section class="hero">
+  <h1>Aprende a programar</h1>
+  <p>Cursos prácticos desde cero</p>
+  <a href="#cursos" class="btn">Empezar</a>
+</section>` },
+
+  { lang: "HTML", level: "medium", file: "tarjeta-producto.html",
+    info: "Tarjeta de producto de tienda online: imagen, nombre, precio y botón.",
+    code: `<article class="producto">
+  <img src="zapatillas.jpg" alt="Zapatillas deportivas">
+  <h3>Zapatillas Run</h3>
+  <p class="precio">59,99 €</p>
+  <button>Añadir al carrito</button>
+</article>` },
+
+  { lang: "HTML", level: "medium", file: "login.html",
+    info: "Formulario de inicio de sesión. Cada input lleva su label asociado con for/id.",
+    code: `<form action="/login" method="post">
+  <label for="correo">Correo</label>
+  <input type="email" id="correo" name="correo" required>
+  <label for="clave">Contraseña</label>
+  <input type="password" id="clave" name="clave" required>
+  <button type="submit">Entrar</button>
+</form>` },
+
+  { lang: "HTML", level: "medium", file: "registro.html",
+    info: "Formulario de registro con validación básica: required y minlength.",
+    code: `<form action="/registro" method="post">
+  <input type="text" name="usuario" placeholder="Usuario" required>
+  <input type="email" name="correo" placeholder="Correo" required>
+  <input type="password" name="clave" placeholder="Contraseña" minlength="8" required>
+  <button type="submit">Crear cuenta</button>
+</form>` },
+
+  { lang: "HTML", level: "medium", file: "contacto.html",
+    info: "Formulario de contacto típico: nombre, correo y mensaje.",
+    code: `<form action="/enviar" method="post">
+  <input type="text" name="nombre" placeholder="Tu nombre">
+  <input type="email" name="correo" placeholder="Tu correo">
+  <textarea name="mensaje" rows="5" placeholder="Mensaje"></textarea>
+  <button type="submit">Enviar</button>
+</form>` },
+
+  { lang: "HTML", level: "medium", file: "buscador.html",
+    info: "Barra de búsqueda. type=\"search\" da un botón de borrar en algunos navegadores.",
+    code: `<form action="/buscar" method="get">
+  <input type="search" name="q" placeholder="Buscar...">
+  <button type="submit">Buscar</button>
+</form>` },
+
+  { lang: "HTML", level: "medium", file: "newsletter.html",
+    info: "Suscripción a boletín: un campo de correo y un botón.",
+    code: `<form class="newsletter">
+  <label for="mail">Suscríbete</label>
+  <input type="email" id="mail" placeholder="tu@correo.com" required>
+  <button type="submit">Apuntarme</button>
+</form>` },
+
+  { lang: "HTML", level: "medium", file: "checkboxes.html",
+    info: "Casillas para elegir varias opciones. Todas comparten name pero distinto value.",
+    code: `<fieldset>
+  <legend>Intereses</legend>
+  <label><input type="checkbox" name="tema" value="web"> Web</label>
+  <label><input type="checkbox" name="tema" value="apps"> Apps</label>
+</fieldset>` },
+
+  { lang: "HTML", level: "medium", file: "radios.html",
+    info: "Botones de radio: solo se puede elegir uno. Comparten el mismo name.",
+    code: `<fieldset>
+  <legend>Método de pago</legend>
+  <label><input type="radio" name="pago" value="tarjeta"> Tarjeta</label>
+  <label><input type="radio" name="pago" value="paypal"> PayPal</label>
+</fieldset>` },
+
+  { lang: "HTML", level: "medium", file: "select-grupo.html",
+    info: "Desplegable con opciones agrupadas por categoría usando optgroup.",
+    code: `<select name="curso">
+  <optgroup label="Informática">
+    <option value="smr">SMR</option>
+    <option value="dam">DAM</option>
+  </optgroup>
+</select>` },
+
+  { lang: "HTML", level: "medium", file: "tabla-precios.html",
+    info: "Tabla de precios. thead es la cabecera y tbody el cuerpo.",
+    code: `<table>
+  <thead>
+    <tr>
+      <th>Plan</th>
+      <th>Precio</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Básico</td>
+      <td>5 €/mes</td>
+    </tr>
+  </tbody>
+</table>` },
+
+  { lang: "HTML", level: "medium", file: "footer-columnas.html",
+    info: "Pie de página con varias columnas de enlaces, muy común en webs grandes.",
+    code: `<footer>
+  <div class="col">
+    <h4>Empresa</h4>
+    <a href="/sobre-nosotros">Nosotros</a>
+  </div>
+  <div class="col">
+    <h4>Ayuda</h4>
+    <a href="/faq">Preguntas</a>
+  </div>
+</footer>` },
+
+  { lang: "HTML", level: "medium", file: "galeria.html",
+    info: "Galería de imágenes dentro de un contenedor. loading=\"lazy\" carga al hacer scroll.",
+    code: `<div class="galeria">
+  <img src="1.jpg" alt="Foto 1" loading="lazy">
+  <img src="2.jpg" alt="Foto 2" loading="lazy">
+  <img src="3.jpg" alt="Foto 3" loading="lazy">
+</div>` },
+
+  { lang: "HTML", level: "medium", file: "figure.html",
+    info: "figure y figcaption unen una imagen con su pie de foto de forma semántica.",
+    code: `<figure>
+  <img src="playa.jpg" alt="Playa al atardecer">
+  <figcaption>Atardecer en la costa</figcaption>
+</figure>` },
+
+  { lang: "HTML", level: "medium", file: "articulo-blog.html",
+    info: "Entrada de blog: título, fecha con <time> y contenido dentro de article.",
+    code: `<article>
+  <h2>Mi primer post</h2>
+  <time datetime="2026-09-21">21 sep 2026</time>
+  <p>Hoy empecé a aprender HTML.</p>
+</article>` },
+
+  { lang: "HTML", level: "medium", file: "layout-aside.html",
+    info: "Estructura con contenido principal y barra lateral (aside).",
+    code: `<div class="layout">
+  <main>
+    <h1>Noticias</h1>
+  </main>
+  <aside>
+    <h2>Populares</h2>
+  </aside>
+</div>` },
+
+  { lang: "HTML", level: "medium", file: "breadcrumbs.html",
+    info: "Migas de pan: muestran dónde estás dentro de la web.",
+    code: `<nav aria-label="Migas de pan">
+  <a href="/">Inicio</a> /
+  <a href="/tienda">Tienda</a> /
+  <span>Zapatillas</span>
+</nav>` },
+
+  { lang: "HTML", level: "medium", file: "iframe-mapa.html",
+    info: "iframe incrusta otra página, como un mapa o un vídeo, dentro de la tuya.",
+    code: `<iframe src="https://www.example.com" width="600" height="400" title="Contenido incrustado"></iframe>` },
+
+  { lang: "HTML", level: "medium", file: "video.html",
+    info: "Vídeo con controles y una imagen de portada (poster).",
+    code: `<video controls width="640" poster="portada.jpg">
+  <source src="video.mp4" type="video/mp4">
+  Tu navegador no soporta vídeo.
+</video>` },
+
+
+  { lang: "HTML", level: "medium", file: "enlaces-redes.html",
+    info: "target=\"_blank\" abre en pestaña nueva; rel=\"noopener\" es por seguridad.",
+    code: `<a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+<a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>` },
+
+  { lang: "HTML", level: "medium", file: "boton-descarga.html",
+    info: "El atributo download hace que el enlace descargue el archivo en vez de abrirlo.",
+    code: `<a href="curriculum.pdf" download class="btn">Descargar CV</a>` },
+
+  { lang: "HTML", level: "medium", file: "tabla-completa.html",
+    info: "Tabla con pie (tfoot) para totales. Estructura completa de una tabla.",
+    code: `<table>
+  <thead>
+    <tr><th>Producto</th><th>Precio</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Ratón</td><td>15 €</td></tr>
+  </tbody>
+  <tfoot>
+    <tr><td>Total</td><td>15 €</td></tr>
+  </tfoot>
+</table>` },
+
+  { lang: "HTML", level: "medium", file: "lista-menu.html",
+    info: "Menú de restaurante con lista de descripción: término y definición.",
+    code: `<dl>
+  <dt>Tortilla</dt>
+  <dd>Patata y huevo, 6 €</dd>
+  <dt>Gazpacho</dt>
+  <dd>Tomate y pepino, 4 €</dd>
+</dl>` },
+
+  { lang: "HTML", level: "medium", file: "input-numero.html",
+    info: "Campos numéricos con límites: min, max y step (el salto).",
+    code: `<label for="edad">Edad</label>
+<input type="number" id="edad" name="edad" min="0" max="120" step="1">` },
+
+  { lang: "HTML", level: "medium", file: "input-fecha.html",
+    info: "Selectores de fecha y hora que el navegador dibuja por ti.",
+    code: `<input type="date" name="fecha">
+<input type="time" name="hora">
+<input type="color" name="color">` },
+
+  { lang: "HTML", level: "medium", file: "input-archivo.html",
+    info: "Subida de archivos. accept limita el tipo de archivo permitido.",
+    code: `<input type="file" name="avatar" accept="image/png, image/jpeg">` },
+
+  { lang: "HTML", level: "medium", file: "datalist.html",
+    info: "Campo de texto con sugerencias que el usuario puede o no seguir.",
+    code: `<input list="lenguajes" name="lenguaje">
+<datalist id="lenguajes">
+  <option value="HTML">
+  <option value="CSS">
+</datalist>` },
+
+  { lang: "HTML", level: "medium", file: "pagina-base.html",
+    info: "Página completa con cabecera, contenido y pie. La base de casi cualquier proyecto.",
+    code: `<body>
+  <header>
+    <h1>Mi Blog</h1>
+    <nav><a href="/">Inicio</a></nav>
+  </header>
+  <main>
+    <p>Contenido</p>
+  </main>
+  <footer>
+    <p>&copy; 2026</p>
+  </footer>
+</body>` },
+
+  /* ---------- CSS (25) ---------- */
+  { lang: "CSS", level: "medium", file: "flex-centrar.css",
+    info: "La forma moderna de centrar algo en horizontal y vertical con Flexbox.",
+    code: `.centro {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}` },
+
+  { lang: "CSS", level: "medium", file: "flex-navbar.css",
+    info: "space-between reparte el espacio: logo a un lado y enlaces al otro.",
+    code: `.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}` },
+
+  { lang: "CSS", level: "medium", file: "flex-gap.css",
+    info: "gap separa los elementos de un flex o grid sin usar márgenes.",
+    code: `.menu {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+}` },
+
+  { lang: "CSS", level: "medium", file: "flex-columna.css",
+    info: "flex-direction: column apila los elementos en vertical.",
+    code: `.tarjeta {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
 }` },
 
-    { lang: "CSS", file: "enlaces.css", code:
-`a {
-  color: royalblue;
-  text-decoration: none;
+  { lang: "CSS", level: "medium", file: "flex-wrap.css",
+    info: "flex-wrap deja que los elementos pasen a la siguiente línea si no caben.",
+    code: `.contenedor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}` },
+
+  { lang: "CSS", level: "medium", file: "flex-hijo.css",
+    info: "flex: 1 hace que un elemento ocupe todo el espacio libre disponible.",
+    code: `.contenido {
+  flex: 1;
 }
-a:hover {
-  text-decoration: underline;
+.lateral {
+  width: 250px;
 }` },
 
-    { lang: "CSS", file: "clases-id.css", code:
-`#cabecera { height: 80px; }
-.destacado { font-weight: bold; }
-p.aviso { color: crimson; }
-div, span { display: inline-block; }` },
-  ];
+  { lang: "CSS", level: "medium", file: "grid-tres.css",
+    info: "Grid de 3 columnas iguales. 1fr significa una fracción del espacio.",
+    code: `.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}` },
+
+  { lang: "CSS", level: "medium", file: "grid-auto.css",
+    info: "Grid que se adapta solo: crea tantas columnas como quepan sin pasar de 250px.",
+    code: `.galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}` },
+
+  { lang: "CSS", level: "medium", file: "grid-layout.css",
+    info: "Layout con barra lateral fija de 250px y contenido flexible.",
+    code: `.layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 24px;
+}` },
+
+  { lang: "CSS", level: "medium", file: "boton.css",
+    info: "Estilo completo de un botón: color, relleno, borde redondeado y sin borde.",
+    code: `.btn {
+  background: #3498db;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}` },
+
+  { lang: "CSS", level: "medium", file: "boton-hover.css",
+    info: "El botón cambia de color al pasar el ratón, con una transición suave.",
+    code: `.btn {
+  background: #3498db;
+  transition: background 0.3s;
+}
+.btn:hover {
+  background: #2980b9;
+}` },
+
+  { lang: "CSS", level: "medium", file: "input-focus.css",
+    info: ":focus se activa cuando haces clic dentro del campo. Ayuda a ver dónde escribes.",
+    code: `input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 5px #3498db;
+}` },
+
+  { lang: "CSS", level: "medium", file: "input-estilo.css",
+    info: "Campo de formulario con estilo limpio y ancho completo.",
+    code: `input, textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}` },
+
+  { lang: "CSS", level: "medium", file: "tarjeta.css",
+    info: "Estilo de tarjeta: fondo blanco, esquinas redondas y sombra suave.",
+    code: `.tarjeta {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}` },
+
+  { lang: "CSS", level: "medium", file: "tarjeta-hover.css",
+    info: "La tarjeta se levanta un poco al pasar el ratón. Efecto muy usado.",
+    code: `.tarjeta {
+  transition: transform 0.3s;
+}
+.tarjeta:hover {
+  transform: translateY(-5px);
+}` },
+
+  { lang: "CSS", level: "medium", file: "hero-css.css",
+    info: "Sección hero a pantalla completa con la imagen de fondo cubriendo todo.",
+    code: `.hero {
+  min-height: 100vh;
+  background: url("fondo.jpg") center / cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}` },
+
+  { lang: "CSS", level: "medium", file: "variables-root.css",
+    info: "Variables CSS: defines el color una vez y lo reutilizas en toda la web.",
+    code: `:root {
+  --primario: #3498db;
+  --texto: #333;
+}
+body {
+  color: var(--texto);
+}` },
+
+  { lang: "CSS", level: "medium", file: "media-movil.css",
+    info: "Media query: estos estilos solo se aplican en pantallas de 768px o menos.",
+    code: `@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}` },
+
+  { lang: "CSS", level: "medium", file: "media-nav-movil.css",
+    info: "En móvil, el menú horizontal pasa a ser vertical.",
+    code: `@media (max-width: 600px) {
+  .menu {
+    flex-direction: column;
+    align-items: center;
+  }
+}` },
+
+  { lang: "CSS", level: "medium", file: "posicion-badge.css",
+    info: "Posicionar un elemento encima de otro: el padre es relative y el hijo absolute.",
+    code: `.producto {
+  position: relative;
+}
+.oferta {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}` },
+
+  { lang: "CSS", level: "medium", file: "nav-fija.css",
+    info: "Barra de navegación que se queda fija arriba al hacer scroll.",
+    code: `.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+}` },
+
+  { lang: "CSS", level: "medium", file: "tabla-estilo.css",
+    info: "border-collapse une los bordes. nth-child pinta las filas alternas.",
+    code: `table {
+  border-collapse: collapse;
+  width: 100%;
+}
+tr:nth-child(even) {
+  background: #f2f2f2;
+}` },
+
+  { lang: "CSS", level: "medium", file: "imagen-circulo.css",
+    info: "Imagen de perfil redonda: object-fit evita que se deforme.",
+    code: `.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}` },
+
+  { lang: "CSS", level: "medium", file: "texto-truncado.css",
+    info: "Corta un texto largo y añade tres puntos (...) en una sola línea.",
+    code: `.titulo {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}` },
+
+  { lang: "CSS", level: "medium", file: "scroll-suave.css",
+    info: "Hace que los enlaces internos (#) se desplacen con animación en vez de saltar.",
+    code: `html {
+  scroll-behavior: smooth;
+}
+body {
+  min-height: 100vh;
+}` }
+];
+
+const EXERCISES = [...EASY, ...MEDIUM];
+
 
   /* ============ REFERENCIAS DOM ============ */
   const $ = id => document.getElementById(id);
   const targetEl = $("target"), inputEl = $("input"), barEl = $("bar");
   const timeEl = $("time"), wpmEl = $("wpm"), accEl = $("acc"), counterEl = $("counter");
-  const resultEl = $("result");
+  const resultEl = $("result"), toastEl = $("toast"), infoEl = $("info");
+
+  /* ============ ALMACENAMIENTO SEGURO ============ */
+  const store = {
+    get(key, fallback) {
+      try { const v = localStorage.getItem(key); return v === null ? fallback : JSON.parse(v); }
+      catch (e) { return fallback; }
+    },
+    set(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+    }
+  };
 
   /* ============ ESTADO ============ */
+  const MODES  = { html: "Solo HTML", css: "Solo CSS", mixed: "HTML + CSS" };
+  const LEVELS = { easy: "Fácil", medium: "Intermedio", hard: "Alto" };
+  const AVAILABLE_LEVELS = ["easy", "medium"];       // "hard" llegará en la próxima versión
+
+  let mode = store.get("ct3-mode", "html");
+  let level = store.get("ct3-level", "easy");
+  if (!MODES[mode]) mode = "html";
+  if (!AVAILABLE_LEVELS.includes(level)) level = "easy";
+
   let current = null;
-  let currentIndex = -1;          // índice dentro de EXERCISES (global)
-  let mode = "html";              // "html" | "css" | "mixed"
-  let lastLang = null;            // para alternar en el modo mixto
+  let currentIndex = -1;
+  let lastLang = null;
   let spans = [];
   let startTime = null;
   let timer = null;
   let finished = false;
-  let totalKeystrokes = 0;   // caracteres tecleados (incluye errores corregidos)
-  let errorKeystrokes = 0;   // pulsaciones que introdujeron un carácter incorrecto
-  let completed = 0;
+  let totalKeystrokes = 0;
+  let errorKeystrokes = 0;
+  let missedChars = new Set();         // posiciones donde falló en este intento
+  let reviewMode = false;
+  let toastTimer = null;
 
-  /* ============ MODOS DE JUEGO ============ */
-  const MODE_LABELS = { html: "HTML", css: "CSS", mixed: "HTML + CSS" };
+  // Datos persistentes
+  let records = store.get("ct3-records", {});      // { "html|easy": 72, ... }
+  let fails   = store.get("ct3-fails", {});        // { "doctype.html": 3, ... } nº de fallos acumulados
+  let done    = store.get("ct3-done", {});         // { "doctype.html": 5, ... } veces completado
 
-  // Índices globales de los ejercicios disponibles en un modo
-  function poolFor(m) {
+  const comboKey = () => mode + "|" + level;
+  const idOf = ex => ex.file;                      // el nombre de archivo identifica el ejercicio
+
+  /* ============ POOLS ============ */
+  function poolFor(m, lv) {
     const idx = [];
     EXERCISES.forEach((ex, i) => {
-      if (m === "mixed" || ex.lang.toLowerCase() === m) idx.push(i);
+      const okLang = m === "mixed" || ex.lang.toLowerCase() === m;
+      if (okLang && ex.level === lv) idx.push(i);
     });
     return idx;
   }
 
-  function updateModeCounts() {
-    $("cnt-html").textContent  = poolFor("html").length  + " ejercicios";
-    $("cnt-css").textContent   = poolFor("css").length   + " ejercicios";
-    $("cnt-mixed").textContent = poolFor("mixed").length + " ejercicios";
+  function failingPool() {
+    // Ejercicios del pool actual con fallos acumulados, ordenados de peor a mejor
+    return poolFor(mode, level)
+      .filter(i => (fails[idOf(EXERCISES[i])] || 0) > 0)
+      .sort((a, b) => (fails[idOf(EXERCISES[b])] || 0) - (fails[idOf(EXERCISES[a])] || 0));
+  }
+
+  function updateCounts() {
+    document.querySelectorAll("#modes .sel-btn").forEach(b => {
+      b.querySelector(".s-count").textContent = poolFor(b.dataset.v, level).length + " ejercicios";
+    });
+    document.querySelectorAll("#levels .sel-btn").forEach(b => {
+      if (b.dataset.v === "hard") return;
+      b.querySelector(".s-count").textContent = poolFor(mode, b.dataset.v).length + " ejercicios";
+    });
+    const nFail = failingPool().length;
+    $("review-count").textContent = nFail ? " (" + nFail + ")" : "";
+    $("review").disabled = nFail === 0;
   }
 
   function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-  /* ============ CARGA DE EJERCICIO ============ */
   function pickRandom() {
-    let pool = poolFor(mode);
+    let pool = poolFor(mode, level);
 
-    // Modo mixto: alternar lenguaje de forma aleatoria, pero evitando
-    // que salgan demasiadas veces seguidas del mismo (mezcla equilibrada)
-    if (mode === "mixed") {
-      const wantLang = lastLang === "HTML" ? "CSS" : lastLang === "CSS" ? "HTML" : (Math.random() < 0.5 ? "HTML" : "CSS");
-      // 70 % alterna, 30 % libre => "alterna o combina de forma aleatoria"
-      const useAlt = Math.random() < 0.7;
-      if (useAlt) pool = pool.filter(i => EXERCISES[i].lang === wantLang);
+    if (reviewMode) {
+      const f = failingPool();
+      if (f.length) {
+        // Pesa más los ejercicios con más fallos: los 3 peores tienen prioridad
+        const top = f.slice(0, Math.max(3, Math.ceil(f.length / 2)));
+        pool = top.length > 1 ? top.filter(i => i !== currentIndex) : top;
+        return randomFrom(pool);
+      }
+      setReviewMode(false);
     }
 
+    if (mode === "mixed") {
+      const wantLang = lastLang === "HTML" ? "CSS" : lastLang === "CSS" ? "HTML" : (Math.random() < 0.5 ? "HTML" : "CSS");
+      if (Math.random() < 0.7) {
+        const alt = pool.filter(i => EXERCISES[i].lang === wantLang);
+        if (alt.length) pool = alt;
+      }
+    }
     if (pool.length > 1) pool = pool.filter(i => i !== currentIndex);
     return randomFrom(pool);
   }
 
-  function setMode(newMode, load = true) {
-    mode = newMode;
-    lastLang = null;
-    document.querySelectorAll(".mode-btn").forEach(b => {
-      const on = b.dataset.mode === newMode;
-      b.classList.toggle("active", on);
-      b.setAttribute("aria-selected", on ? "true" : "false");
+  /* ============ CAMBIO DE MODO / NIVEL ============ */
+  function refreshSelectors() {
+    document.querySelectorAll("#modes .sel-btn").forEach(b => {
+      const on = b.dataset.v === mode;
+      b.classList.toggle("active", on); b.setAttribute("aria-selected", on);
     });
-    try { localStorage.setItem("codetype-mode", newMode); } catch (e) {}
-    if (load) { currentIndex = -1; loadExercise(pickRandom()); }
+    document.querySelectorAll("#levels .sel-btn").forEach(b => {
+      const on = b.dataset.v === level;
+      b.classList.toggle("active", on); b.setAttribute("aria-selected", on);
+    });
   }
 
+  function change(kind, value) {
+    if (kind === "mode") { mode = value; store.set("ct3-mode", mode); }
+    else { level = value; store.set("ct3-level", level); }
+    lastLang = null; currentIndex = -1;
+    setReviewMode(false, true);
+    refreshSelectors();
+    loadExercise(pickRandom());
+  }
+
+  function setReviewMode(on, silent) {
+    reviewMode = on;
+    $("review").classList.toggle("on", on);
+    $("badge-review").style.display = on ? "" : "none";
+    if (on && !silent) showToast("Modo repaso: te salen los ejercicios donde más fallas.");
+  }
+
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
+  }
+
+  /* ============ CARGA DE EJERCICIO ============ */
   function loadExercise(index) {
     clearInterval(timer);
     currentIndex = index;
@@ -731,11 +1291,17 @@ div, span { display: inline-block; }` },
     finished = false;
     totalKeystrokes = 0;
     errorKeystrokes = 0;
+    missedChars = new Set();
+    lastLang = current.lang;
 
     $("filename").textContent = current.file;
     $("lang").textContent = current.lang;
-    lastLang = current.lang;
-    const pool = poolFor(mode);
+    const lb = $("badge-level");
+    lb.textContent = LEVELS[current.level];
+    lb.className = "badge lvl-" + current.level;
+    infoEl.innerHTML = "<b>¿Para qué sirve?</b> " + escapeHtml(current.info);
+
+    const pool = poolFor(mode, level);
     counterEl.textContent = (pool.indexOf(index) + 1) + "/" + pool.length;
 
     targetEl.innerHTML = "";
@@ -755,21 +1321,22 @@ div, span { display: inline-block; }` },
     barEl.style.width = "0%";
     resultEl.classList.remove("show");
     render();
+    updateCounts();
     inputEl.focus();
   }
 
-  /* ============ RENDER EN TIEMPO REAL ============ */
+  function escapeHtml(t) {
+    return t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  }
+
+  /* ============ RENDER ============ */
   function render() {
     const typed = inputEl.value;
     for (let i = 0; i < spans.length; i++) {
       const s = spans[i];
-      if (i < typed.length) {
-        s.className = typed[i] === current.code[i] ? "ok" : "bad";
-      } else if (i === typed.length && !finished) {
-        s.className = "cur";
-      } else {
-        s.className = "";
-      }
+      if (i < typed.length) s.className = typed[i] === current.code[i] ? "ok" : "bad";
+      else if (i === typed.length && !finished) s.className = "cur";
+      else s.className = "";
     }
     barEl.style.width = Math.min(100, (typed.length / current.code.length) * 100) + "%";
   }
@@ -778,26 +1345,13 @@ div, span { display: inline-block; }` },
   function correctChars() {
     const typed = inputEl.value;
     let n = 0;
-    for (let i = 0; i < typed.length && i < current.code.length; i++) {
-      if (typed[i] === current.code[i]) n++;
-    }
+    for (let i = 0; i < typed.length && i < current.code.length; i++) if (typed[i] === current.code[i]) n++;
     return n;
   }
-
-  function elapsedSeconds() {
-    return startTime ? (Date.now() - startTime) / 1000 : 0;
-  }
-
-  function computeWpm(seconds) {
-    if (seconds <= 0) return 0;
-    // Estándar: 1 palabra = 5 caracteres correctos
-    return Math.round((correctChars() / 5) / (seconds / 60));
-  }
-
-  function computeAccuracy() {
-    if (totalKeystrokes === 0) return 100;
-    return Math.max(0, Math.round(((totalKeystrokes - errorKeystrokes) / totalKeystrokes) * 100));
-  }
+  const elapsedSeconds = () => startTime ? (Date.now() - startTime) / 1000 : 0;
+  // Tiempo mínimo de 0.5 s para evitar divisiones por cero y PPM absurdos si algo se completa "al instante"
+  const computeWpm = sec => Math.round((correctChars() / 5) / (Math.max(sec, 0.5) / 60));
+  const computeAccuracy = () => totalKeystrokes === 0 ? 100 : Math.max(0, Math.round(((totalKeystrokes - errorKeystrokes) / totalKeystrokes) * 100));
 
   function tick() {
     const t = elapsedSeconds();
@@ -818,66 +1372,76 @@ div, span { display: inline-block; }` },
     timeEl.textContent = t.toFixed(1) + "s";
     wpmEl.textContent = wpm;
     accEl.textContent = acc + "%";
-
     $("r-wpm").textContent = wpm;
     $("r-acc").textContent = acc + "%";
     $("r-time").textContent = t.toFixed(1) + "s";
 
-    completed++;
-    let best = 0;
-    try {
-      best = parseInt(localStorage.getItem("codetype-best") || "0", 10);
-      if (wpm > best) { best = wpm; localStorage.setItem("codetype-best", String(best)); $("best").textContent = "🏆 ¡Nuevo récord personal: " + best + " PPM!"; }
-      else $("best").textContent = "Récord personal: " + best + " PPM · Fragmentos completados: " + completed;
-    } catch (e) {
-      $("best").textContent = "Fragmentos completados: " + completed;
+    // Récord por combinación (modo + dificultad)
+    const key = comboKey();
+    const prev = records[key] || 0;
+    const label = MODES[mode] + " · " + LEVELS[level];
+    if (wpm > prev || !(key in records)) {
+      records[key] = wpm; store.set("ct3-records", records);
+      $("best").textContent = "🏆 ¡Nuevo récord en " + label + ": " + wpm + " PPM!" + (prev ? " (antes " + prev + ")" : "");
+    } else {
+      $("best").textContent = "Récord en " + label + ": " + prev + " PPM";
     }
+
+    // Registro de fallos por ejercicio
+    const id = idOf(current);
+    done[id] = (done[id] || 0) + 1; store.set("ct3-done", done);
+    if (errorKeystrokes > 0) {
+      fails[id] = (fails[id] || 0) + errorKeystrokes;
+      $("fails").textContent = "Fallaste " + errorKeystrokes + " " + (errorKeystrokes === 1 ? "vez" : "veces") + " · guardado para repasar";
+    } else {
+      // Ejercicio limpio: baja el contador para que "se gradúe" del repaso
+      if (fails[id]) {
+        fails[id] = Math.max(0, fails[id] - 2);
+        if (fails[id] === 0) delete fails[id];
+        $("fails").textContent = fails[id] ? "¡Limpio! Te quedan pocos fallos pendientes aquí." : "🎉 ¡Sin fallos! Sale de tu lista de repaso.";
+      } else {
+        $("fails").textContent = "Sin fallos ✔";
+      }
+    }
+    store.set("ct3-fails", fails);
 
     resultEl.classList.add("show");
     render();
+    updateCounts();
   }
 
   /* ============ EVENTOS ============ */
   inputEl.addEventListener("input", (e) => {
     if (finished) return;
+    if (!startTime) { startTime = Date.now(); timer = setInterval(tick, 100); }
 
-    if (!startTime) {
-      startTime = Date.now();
-      timer = setInterval(tick, 100);
-    }
+    if (inputEl.value.length > current.code.length) inputEl.value = inputEl.value.slice(0, current.code.length);
 
-    // Impedir escribir más allá de la longitud del objetivo
-    if (inputEl.value.length > current.code.length) {
-      inputEl.value = inputEl.value.slice(0, current.code.length);
-    }
-
-    // Contar pulsaciones (solo inserciones, no borrados)
     if (e.inputType && e.inputType.startsWith("insert")) {
       const typed = inputEl.value;
       const pos = typed.length - 1;
       totalKeystrokes++;
-      if (typed[pos] !== current.code[pos]) errorKeystrokes++;
+      if (typed[pos] !== current.code[pos]) { errorKeystrokes++; missedChars.add(pos); }
     }
 
     render();
     tick();
-
     if (inputEl.value === current.code) finish();
   });
 
   inputEl.addEventListener("keydown", (e) => {
-    // Tab inserta 2 espacios en lugar de cambiar el foco
     if (e.key === "Tab") {
       e.preventDefault();
       if (finished) return;
-      const start = inputEl.selectionStart;
-      inputEl.setRangeText("  ", start, inputEl.selectionEnd, "end");
+      inputEl.setRangeText("  ", inputEl.selectionStart, inputEl.selectionEnd, "end");
       inputEl.dispatchEvent(new InputEvent("input", { inputType: "insertText", data: "  " }));
     }
-    // Evitar pegar para no hacer trampa
   });
 
-  inputEl.addEventListener("paste", (e) => e.preventDefault());
+  // Pegar: se bloquea y se avisa (antes se ignoraba en silencio)
+  const blockPaste = e => { e.preventDefault(); showToast("Pegar está desactivado: la gracia es escribirlo tú 😉"); };
+  inputEl.addEventListener("paste", blockPaste);
+  inputEl.addEventListener("drop", blockPaste);
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { e.preventDefault(); loadExercise(currentIndex); }
@@ -886,20 +1450,29 @@ div, span { display: inline-block; }` },
 
   $("restart").addEventListener("click", () => loadExercise(currentIndex));
   $("next").addEventListener("click", () => loadExercise(pickRandom()));
-
-  document.querySelectorAll(".mode-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (btn.dataset.mode !== mode) setMode(btn.dataset.mode);
-      inputEl.focus();
-    });
+  $("review").addEventListener("click", () => {
+    if (reviewMode) { setReviewMode(false); showToast("Modo repaso desactivado."); }
+    else {
+      if (!failingPool().length) { showToast("No tienes fallos guardados en esta combinación."); return; }
+      setReviewMode(true);
+      loadExercise(pickRandom());
+    }
+    inputEl.focus();
   });
 
+  document.querySelectorAll("#modes .sel-btn").forEach(btn => btn.addEventListener("click", () => {
+    if (btn.dataset.v !== mode) change("mode", btn.dataset.v);
+    inputEl.focus();
+  }));
+  document.querySelectorAll("#levels .sel-btn").forEach(btn => btn.addEventListener("click", () => {
+    if (btn.disabled || !AVAILABLE_LEVELS.includes(btn.dataset.v)) return;
+    if (btn.dataset.v !== level) change("level", btn.dataset.v);
+    inputEl.focus();
+  }));
+
   /* ============ INICIO ============ */
-  updateModeCounts();
-  let savedMode = "html";
-  try { savedMode = localStorage.getItem("codetype-mode") || "html"; } catch (e) {}
-  if (!MODE_LABELS[savedMode]) savedMode = "html";
-  setMode(savedMode);
+  refreshSelectors();
+  loadExercise(pickRandom());
 </script>
 </body>
 </html>
